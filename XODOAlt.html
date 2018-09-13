@@ -1,8 +1,103 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<!-- script src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.550/pdf.js'></script --> 
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.550/pdf.js'></script> 
 		<!-- PDF.js for PDF support - eta soon -->
+		<script id='pdfjs_spprt'>
+			var PDFJS = window['pdfjs-dist/build/pdf'];
+			var BASE64_MARKER = ';base64,';
+			function StolenFromStackOverflow(dataURI) { // No really, it is https://stackoverflow.com/questions/12092633/pdf-js-rendering-a-pdf-file-using-a-base64-file-source-instead-of-url
+			  var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+			  var base64 = dataURI.substring(base64Index);
+			  var raw = window.atob(base64);
+			  var rawLength = raw.length;
+			  var array = new Uint8Array(new ArrayBuffer(rawLength));
+
+			  for(var i = 0; i < rawLength; i++) {
+			    array[i] = raw.charCodeAt(i);
+			  }
+			  return array;
+			}
+			var doItWith = (pdf, c, pageNumber, final = false, res)=>{
+				// for(var pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+					// se(()=>{
+						console.log('PDF loaded');
+						  
+						  // Fetch the first page
+						  // var pageNumber = 1;
+						  console.log(pageNumber)
+						  pdf.getPage(pageNumber || 1).then(function(page) {
+						    console.log('Page loaded');
+						    
+						    var scale = 1;
+						    var viewport = page.getViewport(scale);
+
+						    // Prepare canvas using PDF page dimensions
+						    var canvas = c;
+						    var context = canvas.getContext('2d');
+						    canvas.height = viewport.height;
+						    canvas.width = viewport.width;
+						    // Render PDF page into canvas context
+						    // context.translate(viewport.width * pageNumber, 0);
+						    var renderContext = {
+						      canvasContext: context,
+						      viewport: viewport
+						    };
+						    var renderTask = page.render(renderContext);
+						    var completeCallback = renderTask._internalRenderTask.callback;
+							renderTask._internalRenderTask.callback = function (error) {
+							  //Step 2: what you want to do before calling the complete method                  
+							  completeCallback.call(this, error);
+							  //Step 3: do some more stuff
+							  if(final) res(pdf);
+							};
+
+						    // context.translate(-viewport.width * pageNumber, 0);
+						    renderTask.then(function () {
+						      console.log('Page rendered');
+							  	
+						    	// if(pdf.numPages == pageNumber)res(c.toDataURL());
+						    });
+						  });
+						// }, 1000 * (pageNumber-1));
+				// }
+			}
+			function convertB64ToCanvas(b64) {
+				return new Promise((res,rej)=>{//pageNumber
+					var pdfAsArray = StolenFromStackOverflow(b64);
+					var c = [];
+					var loadingTask = PDFJS.getDocument(pdfAsArray);
+					loadingTask.promise.then(function(pdf) {
+						for(var i = 1; i <= pdf.numPages; i++) c.push(document.createElement('canvas'));
+						for(var i = 1; i <= pdf.numPages; i++){
+							doItWith(pdf, c[i-1], i, pdf.numPages == i, ()=>{
+							ca.width = window.innerWidth * 1.5;
+							ca.height = window.innerHeight * 1.5;
+							for(var i in c) {
+								ca.getContext('2d').drawImage(c[i], i*(ca.width/pdf.numPages), 0, ca.width/pdf.numPages, ca.height);
+								ca.getContext('2d').strokeRect(i*(ca.width/pdf.numPages), 0, ca.width/pdf.numPages, ca.height);
+							};
+							res(ca.toDataURL());
+						});
+						};
+						var ca = document.createElement('canvas');
+						ca.width = window.innerWidth;
+						// setTimeout(()=>{
+						// 	ca.width = window.innerWidth * 1.5;
+						// 	ca.height = window.innerHeight * 1.5;
+						// 	for(var i in c) {
+						// 		ca.getContext('2d').drawImage(c[i], i*(ca.width/pdf.numPages), 0, ca.width/pdf.numPages, ca.height);
+						// 	};
+						// 	res(ca.toDataURL());
+						// }, 10000);
+					}, function (reason) {
+					  // PDF loading error
+					  console.error(reason);
+					  rej(reason);
+					});
+				});
+			};
+		</script>
 		<script>
 			window.onerror = (a,b,c,d,e,f) => {alert([a,b,c,d,e,f].join())};
 			function img_onload(e) {
@@ -25,8 +120,10 @@
 					var fr = new FileReader;
 					var img = new Image();
 					document.querySelector('button#asd').onclick = ()=>{
+						// fr.readAsDataURL(file);
+						// fr.onload = ()=>img_onload(fr.result);
 						fr.readAsDataURL(file);
-						fr.onload = ()=>img_onload(fr.result);
+						fr.onload = ()=>convertB64ToCanvas(fr.result).then((e)=>img_onload(e));
 					}
 				};
 				var td = false;
@@ -64,7 +161,7 @@
 	</head>
 	<body style='padding: 0; margin: 0'>
 		<div style='border: solid 1px black; position: absolute; top: 0; width: 90vw; height: 90vh; display: block; padding: 0; margin: 0; text-align: center; overflow: scroll'><canvas style='width: 90vw; height: 90vh; border: solid 1px black' id='renderer'>Holy crap how old is your browser?!?! Netscape 7.1??</canvas></div>
-		<div style='border: solid 1px black; position: absolute; top: 0; width: 10vw; height: 90vh; display: block; padding: 0; margin: 0; right: 0; text-align: center'><input type='color' id='fudge' /><br/><br/><input type='number' style='width:50%'/>px<br/><br/>filename: <br/><input style='width: 70%' value='xodo_sucks.png' id='name'/></div>
+		<div style='border: solid 1px black; position: absolute; top: 0; width: 10vw; height: 90vh; display: block; padding: 0; margin: 0; right: 0; text-align: center'><input type='color' id='fudge' /><br/><br/><input type='number' style='width:50%'/>px<br/><br/>filename: <br/><input style='width: 70%' value='xodo_sucks.png' id='name'/><br/><br/><br/><br/>When opening a PDF, wait a few seconds. It is very buggy, but works, so idk<br/><a href='//pdf2png.com'>I would recommend converting them with this site, but this is optional</a></div>
 		<br/>
 		<div style='border: solid 1px black; position: absolute; bottom: 0; width: 100vw; height: 10vh; line-height: 10vh; display: block; padding: 0; margin: 0; text-align: center'><form action="javascript:void 0;"><input id='file' type='file' /><button id='asd'>Load</button><button style='margin-left: 96px'>Save as PNG because frick pdf</button></form></div>
 	</body>

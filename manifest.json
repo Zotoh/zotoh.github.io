@@ -6,10 +6,10 @@
 	"version": "1.0.0",
 	"app": {
 		"urls": [
-			"http://localhost/XODOAlt.html"
+			"http://zotoh.github.io/XODOAlt.html"
 		],
 		"launch": {
-			"web_url": "http://localhost/XODOAlt.html"
+			"web_url": "http://zotoh.github.io/XODOAlt.html"
 		}
 	}
 }
