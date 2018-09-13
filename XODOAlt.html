@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- script src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.550/pdf.js'></script --> 
+		<!-- PDF.js for PDF support - eta soon -->
+		<script>
+			window.onerror = (a,b,c,d,e,f) => {alert([a,b,c,d,e,f].join())};
+			function img_onload(e) {
+				var d = new Image();
+				d.src = e;
+				d.onload = ()=>{
+					var canvas = document.querySelector('canvas'),
+						context = canvas.getContext('2d'),
+						width = d.width,
+						height = d.height;
+					canvas.width = width;
+					canvas.height = height;
+					context.drawImage(d, 0, 0, width, height);
+				};
+			};
+			window.onload = function onload() {
+				var input = document.querySelector("input[type=\"file\"]");
+				input.onchange = function() {
+					var file = input.files[0];
+					var fr = new FileReader;
+					var img = new Image();
+					document.querySelector('button#asd').onclick = ()=>{
+						fr.readAsDataURL(file);
+						fr.onload = ()=>img_onload(fr.result);
+					}
+				};
+				var td = false;
+				document.querySelector('canvas').ontouchstart = document.querySelector('canvas').onmousedown = (e)=>{
+					document.querySelector('canvas').getContext('2d').strokeStyle = document.querySelector('input[type=\'color\']').value;
+					document.querySelector('canvas').getContext('2d').lineWidth = document.querySelector('input[type=\"number\"]').value;
+					e.preventDefault();
+					var x='changedTouches' in e?(e.changedTouches[0].pageX):(e.pageX);
+					x *= document.querySelector('canvas').width / (window.innerWidth * 0.9);
+					var y='changedTouches' in e?(e.changedTouches[0].pageY):(e.pageY);;
+					y *= document.querySelector('canvas').height / (window.innerHeight * 0.9);
+					td = true;
+					document.querySelector('canvas').getContext('2d').beginPath();
+					document.querySelector('canvas').getContext('2d').moveTo(x, y);
+				};
+				document.querySelectorAll('button')[1].onclick = ()=>{
+					var filename = document.querySelector('#name').value || 'xodo_sucks.png';
+					var a = document.createElement('a');
+					a.setAttribute('download', filename);
+					a.setAttribute('href', document.querySelector('canvas').toDataURL());
+					a.click();
+				};
+				document.querySelector('canvas').ontouchmove = document.querySelector('canvas').onmousemove = (e)=>{
+					e.preventDefault();
+					var x='changedTouches' in e?(e.changedTouches[0].pageX):(e.pageX);
+					x *= document.querySelector('canvas').width / (window.innerWidth * 0.9);
+					var y='changedTouches' in e?(e.changedTouches[0].pageY):(e.pageY);
+					y *= document.querySelector('canvas').height / (window.innerHeight * 0.9);
+					if(td)document.querySelector('canvas').getContext('2d').lineTo(x,y,2,2);
+					if(td)document.querySelector('canvas').getContext('2d').stroke();
+				};
+				document.querySelector('canvas').ontouchend = document.querySelector('canvas').onmouseup = ()=>{td = false}
+			};
+		</script>
+	</head>
+	<body style='padding: 0; margin: 0'>
+		<div style='border: solid 1px black; position: absolute; top: 0; width: 90vw; height: 90vh; display: block; padding: 0; margin: 0; text-align: center; overflow: scroll'><canvas style='width: 90vw; height: 90vh; border: solid 1px black' id='renderer'>Holy crap how old is your browser?!?! Netscape 7.1??</canvas></div>
+		<div style='border: solid 1px black; position: absolute; top: 0; width: 10vw; height: 90vh; display: block; padding: 0; margin: 0; right: 0; text-align: center'><input type='color' id='fudge' /><br/><br/><input type='number' style='width:50%'/>px<br/><br/>filename: <br/><input style='width: 70%' value='xodo_sucks.png' id='name'/></div>
+		<br/>
+		<div style='border: solid 1px black; position: absolute; bottom: 0; width: 100vw; height: 10vh; line-height: 10vh; display: block; padding: 0; margin: 0; text-align: center'><form action="javascript:void 0;"><input id='file' type='file' /><button id='asd'>Load</button><button style='margin-left: 96px'>Save as PNG because frick pdf</button></form></div>
+	</body>
+</html>

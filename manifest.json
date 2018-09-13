@@ -1,0 +1,15 @@
+{
+	"manifest_version": 2,
+	"name": "Zotoh",
+	"description": "Zotoh is an alternative to Xodo for Chrome 49 and later",
+	"author": "John Jelatis",
+	"version": "1.0.0",
+	"app": {
+		"urls": [
+			"http://localhost/XODOAlt.html"
+		],
+		"launch": {
+			"web_url": "http://localhost/XODOAlt.html"
+		}
+	}
+}
