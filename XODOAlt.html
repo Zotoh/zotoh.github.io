@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Zotoh (Image+PDF Editor)</title>
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-117421808-2"></script>
 		<script>
@@ -133,7 +132,7 @@
 					var fr = new FileReader;
 					var img = new Image();
 					document.querySelector('button#asd').onclick = ()=>{
-						if(!document.querySelector('button#asd').value.includes('.pdf'))
+						if(!document.querySelector('input[type=\"file\"]').value.includes('.pdf'))
 						{
 							fr.readAsDataURL(file);
 							fr.onload = ()=>img_onload(fr.result);
