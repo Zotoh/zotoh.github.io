@@ -7,11 +7,11 @@
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
-
-		  gtag('config', 'UA-117421808-2');
+ 		  gtag('config', 'UA-117421808-2');
 		</script>
 		<!-- D: Sorry I know you hate analytics, but I am curious how many views this will get -->
 		<!-- Yes I hate them too, I don't blame you if you have adblock/uBlock Origin -->
+		
 		
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.550/pdf.js'></script> 
 		<!-- PDF.js for PDF support - eta soon -->
@@ -132,10 +132,14 @@
 					var fr = new FileReader;
 					var img = new Image();
 					document.querySelector('button#asd').onclick = ()=>{
-						// fr.readAsDataURL(file);
-						// fr.onload = ()=>img_onload(fr.result);
-						fr.readAsDataURL(file);
-						fr.onload = ()=>convertB64ToCanvas(fr.result).then((e)=>img_onload(e));
+						if(!document.querySelector('button#asd').value.includes('.pdf'))
+						{
+							fr.readAsDataURL(file);
+							fr.onload = ()=>img_onload(fr.result);
+						} else {
+							fr.readAsDataURL(file);
+							fr.onload = ()=>convertB64ToCanvas(fr.result).then((e)=>img_onload(e));
+						}
 					}
 				};
 				var td = false;
